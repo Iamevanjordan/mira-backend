@@ -84,11 +84,32 @@ async def dashboard(request: Request):
     
     async with engine.connect() as conn:
         result = await conn.execute(text("SELECT id, name, email, service, status FROM leads"))
-        leads = result.fetchall()
+        raw_leads = result.fetchall()
     
     await engine.dispose()
     
+    # 🎯 THIS IS THE KEY PART - Organize leads by status
+    leads_by_status = {
+        "New": [],
+        "Contract Generated": [], 
+        "DocuSign Ready": []
+    }
+    
+    # Sort each lead into the right "drawer"
+    for lead in raw_leads:
+        lead_dict = {
+            "id": lead[0],
+            "name": lead[1], 
+            "email": lead[2],
+            "service": lead[3],
+            "status": lead[4]
+        }
+        
+        # Put the lead in the right status bucket
+        if lead_dict["status"] in leads_by_status:
+            leads_by_status[lead_dict["status"]].append(lead_dict)
+    
     return templates.TemplateResponse(
         "dashboard.html",
-        {"request": request, "leads": leads}
+        {"request": request, "leads": leads_by_status}
     )

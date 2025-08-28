@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Mira Pipeline</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f9f9f9; margin: 20px; }
+    h1 { text-align: center; }
+    .board { display: flex; gap: 20px; justify-content: center; }
+    .column {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      width: 300px;
+      padding: 10px;
+    }
+    .column h2 { text-align: center; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+    .card {
+      background: #f3f3f3;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .card strong { display: block; }
+  </style>
+</head>
+<body>
+  <h1>Mira Lead Pipeline</h1>
+  <div class="board">
+    <div class="column">
+      <h2>🆕 New</h2>
+      {% for lead in leads if lead[3] == 'new' %}
+        <div class="card">
+          <strong>{{ lead[1] }}</strong>
+          {{ lead[2] }} <br>
+          {{ lead[3] }}
+        </div>
+      {% endfor %}
+    </div>
+    <div class="column">
+      <h2>📑 Contract Generated</h2>
+      {% for lead in leads if lead[3] == 'contract generated' %}
+        <div class="card">
+          <strong>{{ lead[1] }}</strong>
+          {{ lead[2] }} <br>
+          {{ lead[3] }}
+        </div>
+      {% endfor %}
+    </div>
+    <div class="column">
+      <h2>✅ DocuSign Ready</h2>
+      {% for lead in leads if lead[3] == 'DocuSign Ready' %}
+        <div class="card">
+          <strong>{{ lead[1] }}</strong>
+          {{ lead[2] }} <br>
+          {{ lead[3] }}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</body>
+</html>
