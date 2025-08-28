@@ -80,47 +80,47 @@ async def dashboard(request: Request):
     
     DATABASE_URL = os.getenv("DATABASE_URL")
 
-    # Force asyncpg driver
     if DATABASE_URL.startswith("postgres://"):
         DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
     elif DATABASE_URL.startswith("postgresql://"):
         DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
 
     engine = create_async_engine(DATABASE_URL, echo=False)
-    
+
     async with engine.connect() as conn:
         result = await conn.execute(text("SELECT id, name, email, service, status FROM leads"))
         raw_leads = result.fetchall()
-    
-    await engine.dispose()
-    
-    # 🎯 Organize leads by status (with an Other bucket for unexpected statuses)
-leads_by_status = {
-    "New": [],
-    "Contract Generated": [],
-    "DocuSign Ready": [],
-    "Other": []
-}
 
-# Sort each lead into the right "drawer"
-for lead in raw_leads:
-    lead_dict = {
-        "id": lead[0],
-        "name": lead[1],
-        "email": lead[2],
-        "service": lead[3],
-        "status": lead[4]
+    await engine.dispose()
+
+    # 🎯 Organize leads by status (with an Other bucket for unexpected statuses)
+    leads_by_status = {
+        "New": [],
+        "Contract Generated": [],
+        "DocuSign Ready": [],
+        "Other": []
     }
 
-    # Normalize case for matching
-    status_key = lead_dict["status"].strip().title()
+    # Sort each lead into the right "drawer"
+    for lead in raw_leads:
+        lead_dict = {
+            "id": lead[0],
+            "name": lead[1],
+            "email": lead[2],
+            "service": lead[3],
+            "status": lead[4]
+        }
 
-    # Put in correct bucket, or drop into Other if it's not predefined
-    if status_key in leads_by_status:
-        leads_by_status[status_key].append(lead_dict)
-    else:
-        leads_by_status["Other"].append(lead_dict)
-    
+        # Normalize case for matching
+        status_key = lead_dict["status"].strip().title()
+
+        # Put in correct bucket, or drop into Other if it's not predefined
+        if status_key in leads_by_status:
+            leads_by_status[status_key].append(lead_dict)
+        else:
+            leads_by_status["Other"].append(lead_dict)
+
+    # ✅ Indented INSIDE the function
     return templates.TemplateResponse(
         "dashboard.html",
         {"request": request, "leads": leads_by_status}
