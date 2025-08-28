@@ -112,8 +112,9 @@ async def dashboard(request: Request):
         }
         
         # Put the lead in the right status bucket
-        if lead_dict["status"] in leads_by_status:
-            leads_by_status[lead_dict["status"]].append(lead_dict)
+        status_key = lead_dict["status"].strip().title()   # normalize case
+if status_key in leads_by_status:
+    leads_by_status[status_key].append(lead_dict)
     
     return templates.TemplateResponse(
         "dashboard.html",
