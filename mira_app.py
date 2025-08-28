@@ -74,15 +74,20 @@ templates = Jinja2Templates(directory="templates")
 
 # Dashboard endpoint
 @app.get("/dashboard", response_class=HTMLResponse)
-def dashboard(request: Request):
-    conn = sqlite3.connect("mira.db")
-    cursor = conn.cursor()
-
-    # Example: assume your leads table has name, email, service, status columns
-    cursor.execute("SELECT name, email, service, status FROM leads")
-    leads = cursor.fetchall()
-    conn.close()
-
+async def dashboard(request: Request):
+    from sqlalchemy.ext.asyncio import create_async_engine
+    from sqlalchemy import text
+    import os
+    
+    DATABASE_URL = os.getenv("DATABASE_URL")
+    engine = create_async_engine(DATABASE_URL, echo=False)
+    
+    async with engine.connect() as conn:
+        result = await conn.execute(text("SELECT id, name, email, service, status FROM leads"))
+        leads = result.fetchall()
+    
+    await engine.dispose()
+    
     return templates.TemplateResponse(
         "dashboard.html",
         {"request": request, "leads": leads}
