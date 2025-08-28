@@ -4,7 +4,6 @@ It receives client intake forms, stores them, and will handle contract generatio
 """
 
 from fastapi import FastAPI, Request, BackgroundTasks
-import aiosqlite
 import json
 
 app = FastAPI()
