@@ -94,27 +94,32 @@ async def dashboard(request: Request):
     
     await engine.dispose()
     
-    # 🎯 THIS IS THE KEY PART - Organize leads by status
-    leads_by_status = {
-        "New": [],
-        "Contract Generated": [], 
-        "DocuSign Ready": []
+    # 🎯 Organize leads by status (with an Other bucket for unexpected statuses)
+leads_by_status = {
+    "New": [],
+    "Contract Generated": [],
+    "DocuSign Ready": [],
+    "Other": []
+}
+
+# Sort each lead into the right "drawer"
+for lead in raw_leads:
+    lead_dict = {
+        "id": lead[0],
+        "name": lead[1],
+        "email": lead[2],
+        "service": lead[3],
+        "status": lead[4]
     }
-    
-    # Sort each lead into the right "drawer"
-    for lead in raw_leads:
-        lead_dict = {
-            "id": lead[0],
-            "name": lead[1], 
-            "email": lead[2],
-            "service": lead[3],
-            "status": lead[4]
-        }
-        
-        # Put the lead in the right status bucket
-        status_key = lead_dict["status"].strip().title()   # normalize case
-if status_key in leads_by_status:
-    leads_by_status[status_key].append(lead_dict)
+
+    # Normalize case for matching
+    status_key = lead_dict["status"].strip().title()
+
+    # Put in correct bucket, or drop into Other if it's not predefined
+    if status_key in leads_by_status:
+        leads_by_status[status_key].append(lead_dict)
+    else:
+        leads_by_status["Other"].append(lead_dict)
     
     return templates.TemplateResponse(
         "dashboard.html",
