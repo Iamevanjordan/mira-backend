@@ -93,7 +93,7 @@ async def dashboard(request: Request):
 
     await engine.dispose()
 
-    # 🎯 Organize leads by status (with an Other bucket for unexpected statuses)
+    # 🎯 Organize leads by status (with robust normalization + Other fallback)
     leads_by_status = {
         "New": [],
         "Contract Generated": [],
@@ -101,26 +101,29 @@ async def dashboard(request: Request):
         "Other": []
     }
 
-    # Sort each lead into the right "drawer"
+    # Define normalized mapping
+    status_map = {
+        "new": "New",
+        "contract generated": "Contract Generated",
+        "docusign ready": "DocuSign Ready"
+    }
+
     for lead in raw_leads:
         lead_dict = {
             "id": lead[0],
             "name": lead[1],
             "email": lead[2],
             "service": lead[3],
-            "status": lead[4]
+            "status": lead[4],
         }
 
-        # Normalize case for matching
-        status_key = lead_dict["status"].strip().title()
+        # Normalize incoming DB status
+        normalized = lead_dict["status"].strip().lower()
+        status_key = status_map.get(normalized, "Other")
 
-        # Put in correct bucket, or drop into Other if it's not predefined
-        if status_key in leads_by_status:
-            leads_by_status[status_key].append(lead_dict)
-        else:
-            leads_by_status["Other"].append(lead_dict)
+        # Bucket the lead
+        leads_by_status[status_key].append(lead_dict)
 
-    # ✅ Indented INSIDE the function
     return templates.TemplateResponse(
         "dashboard.html",
         {"request": request, "leads": leads_by_status}
