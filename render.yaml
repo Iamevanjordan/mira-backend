@@ -1,0 +1,10 @@
+services:
+  - type: web                # this is a web service (vs cron, worker, etc.)
+    name: mira-backend       # displayed name in Render dashboard
+    env: python              # runtime
+    plan: free               # pricing tier (keep free for now)
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn mira_app:app --host 0.0.0.0 --port 10000"
+    envVars:
+      - key: DATABASE_URL
+        sync: false          # tells Render “this value lives in dashboard, don't overwrite”
