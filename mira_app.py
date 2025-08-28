@@ -61,3 +61,29 @@ async def get_agent_clients(agent_id: str):
             if data.get("agent") == agent_id:
                 agent_clients.append({"id": row[0], "data": data})
         return agent_clients
+        from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+import sqlite3
+
+app = FastAPI()
+@app.get("/")
+async def root():
+    return {"status": "Mira backend is alive 🚀"}
+templates = Jinja2Templates(directory="templates")
+
+# Dashboard endpoint
+@app.get("/dashboard", response_class=HTMLResponse)
+def dashboard(request: Request):
+    conn = sqlite3.connect("mira.db")
+    cursor = conn.cursor()
+
+    # Example: assume your leads table has name, email, service, status columns
+    cursor.execute("SELECT name, email, service, status FROM leads")
+    leads = cursor.fetchall()
+    conn.close()
+
+    return templates.TemplateResponse(
+        "dashboard.html",
+        {"request": request, "leads": leads}
+    )
