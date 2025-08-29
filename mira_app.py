@@ -140,17 +140,17 @@ async def tally_webhook(payload: dict = Body(...)):
 
     # Extract useful fields
     name, email, service = "Unknown", "unknown@example.com", "General Inquiry"
-    for ans in payload.get("data", {}).get("answers", []):
-        label = ans.get("label", "").lower()
-        if "full legal name" in label:
-            name = ans.get("value") or name
-        elif label == "email" and ans.get("value"):
-            email = ans.get("value")
-        elif "how can mira help you today?" in label:
-            choice_ids = ans.get("value", [])
-            options = {opt["id"]: opt["text"] for opt in ans.get("options", [])}
-            if choice_ids:
-                service = options.get(choice_ids[0], service)
+    for ans in payload.get("data", {}).get("fields", []):
+    label = ans.get("label", "").lower()
+    if "full legal name" in label:
+        name = ans.get("value") or name
+    elif label == "email" and ans.get("value"):
+        email = ans.get("value")
+    elif "how can mira help you today?" in label:
+        choice_ids = ans.get("value", [])
+        options = {opt["id"]: opt["text"] for opt in ans.get("options", [])}
+        if choice_ids:
+            service = options.get(choice_ids[0], service)
 
     DATABASE_URL = os.getenv("DATABASE_URL")
     if DATABASE_URL.startswith("postgres://"):
