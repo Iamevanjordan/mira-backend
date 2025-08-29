@@ -132,25 +132,21 @@ async def dashboard(request: Request):
 
 @app.post("/tally_webhook")
 async def tally_webhook(payload: dict = Body(...)):
-    import os
+    import os, json
     from sqlalchemy.ext.asyncio import create_async_engine
     from sqlalchemy import text
 
-    print("📩 Incoming Tally Webhook Payload:", payload)  # still log everything
+    print("📩 Incoming Tally Webhook Payload:", payload)  # logs everything
 
-    # Extract answers
-    answers = payload.get("data", {}).get("fields", []) + payload.get("data", {}).get("answers", [])
+    # Extract useful fields
     name, email, service = "Unknown", "unknown@example.com", "General Inquiry"
-
-    # Loop through answers
-    for ans in payload.get("data", {}).get("fields", []) + payload.get("data", {}).get("answers", []):
+    for ans in payload.get("data", {}).get("answers", []):
         label = ans.get("label", "").lower()
         if "full legal name" in label:
             name = ans.get("value") or name
-        elif label == "email":
-            email = ans.get("value") or email
+        elif label == "email" and ans.get("value"):
+            email = ans.get("value")
         elif "how can mira help you today?" in label:
-            # Map choice id back to option text
             choice_ids = ans.get("value", [])
             options = {opt["id"]: opt["text"] for opt in ans.get("options", [])}
             if choice_ids:
@@ -167,10 +163,16 @@ async def tally_webhook(payload: dict = Body(...)):
     async with engine.begin() as conn:
         await conn.execute(
             text("""
-                INSERT INTO leads (name, email, service, status)
-                VALUES (:name, :email, :service, :status)
+                INSERT INTO leads (name, email, service, status, raw_data)
+                VALUES (:name, :email, :service, :status, :raw_data)
             """),
-            {"name": name, "email": email, "service": service, "status": "New"}
+            {
+                "name": name,
+                "email": email,
+                "service": service,
+                "status": "New",
+                "raw_data": json.dumps(payload)  # full Tally JSON stored here
+            }
         )
 
     await engine.dispose()
