@@ -1,68 +1,127 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Mira Pipeline</title>
+  <title>Mira Dashboard</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f9f9f9; margin: 20px; }
-    h1 { text-align: center; margin-bottom: 30px; }
-    .board { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
-    .column {
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      width: 280px;
-      min-height: 300px;
-      padding: 15px;
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9fafb;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .columns {
       display: flex;
-      flex-direction: column;
+      gap: 20px;
     }
-    .column h2 { 
-      text-align: center; 
-      border-bottom: 1px solid #ccc; 
-      padding-bottom: 5px; 
-      margin-top: 0; 
+    .column {
+      flex: 1;
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .column h2 {
+      text-align: center;
       font-size: 1.2em;
+      margin-bottom: 15px;
     }
-    .card {
-      background: #f3f3f3;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 5px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    .lead-card {
+      background: #f1f5f9;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.08);
     }
-    .card strong { display: block; margin-bottom: 5px; }
-    .empty { color: #999; font-style: italic; text-align: center; margin-top: 20px; }
+    .lead-card h3 {
+      margin: 0 0 5px 0;
+      font-size: 1.1em;
+    }
+    .lead-card p {
+      margin: 2px 0;
+      font-size: 0.9em;
+      color: #374151;
+    }
+    .btn-smart-contract {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 6px 10px;
+      background: #2563eb; /* Blue for primary action */
+      color: #fff;
+      font-size: 0.85em;
+      font-weight: bold;
+      border: none;
+      border-radius: 4px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-smart-contract:hover:not(:disabled) {
+      background: #1e40af;
+    }
+    .btn-smart-contract:disabled {
+      background: #9ca3af; /* Gray when disabled/loading */
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
-  <h1>Mira Lead Pipeline</h1>
-  <div class="board">
-    {% for status, lead_list in leads.items() %}
-      <div class="column">
-        <h2>
-          {% if status == "New" %} 🆕 
-          {% elif status == "Contract Generated" %} 📑 
-          {% elif status == "DocuSign Ready" %} ✅ 
-          {% elif status == "Completed" %} 🎉 
-          {% elif status == "Uncategorized" %} ❓ 
-          {% endif %}
-          {{ status }}
-        </h2>
-        {% if lead_list %}
-          {% for lead in lead_list %}
-            <div class="card">
-              <strong>{{ lead.name }}</strong>
-              {{ lead.email }} <br>
-              {{ lead.service }} <br>
-              <em>Status: {{ lead.status }}</em>
-            </div>
-          {% endfor %}
-        {% else %}
-          <p class="empty">No leads yet</p>
-        {% endif %}
+  <h1>🌀 Mira Dashboard</h1>
+  <div class="columns">
+    {% for status, leads in grouped_leads.items() %}
+    <div class="column">
+      <h2>{{ status }}</h2>
+      {% for lead in leads %}
+      <div class="lead-card">
+        <h3>{{ lead.name }}</h3>
+        <p>Email: {{ lead.email }}</p>
+        <p>Phone: {{ lead.phone }}</p>
+        <p>Status: {{ lead.status }}</p>
+        <button class="btn-smart-contract" data-lead-id="{{ lead.id }}">📄 Generate & Download Contract</button>
       </div>
+      {% endfor %}
+    </div>
     {% endfor %}
   </div>
+
+  <script>
+    document.querySelectorAll('.btn-smart-contract').forEach(button => {
+      button.addEventListener('click', async (event) => {
+        const leadId = event.target.dataset.leadId;
+        const originalText = event.target.textContent;
+        event.target.disabled = true;
+        event.target.textContent = 'Generating...';
+
+        try {
+          // Step 1: Generate the contract
+          const generateResponse = await fetch(`/generate_contract/${leadId}`);
+          if (!generateResponse.ok) {
+            throw new Error(`Failed to generate contract: ${generateResponse.statusText}`);
+          }
+          const generateData = await generateResponse.json();
+          console.log('Contract generation response:', generateData);
+
+          // Step 2: Trigger the download
+          // Create a temporary anchor element to trigger the download
+          const downloadLink = document.createElement('a');
+          downloadLink.href = `/download_contract/${leadId}`;
+          downloadLink.download = `Contract_${leadId}.docx`; // Suggest a filename
+          document.body.appendChild(downloadLink); // Append to body to make it clickable
+          downloadLink.click(); // Programmatically click the link
+          document.body.removeChild(downloadLink); // Clean up
+
+        } catch (error) {
+          console.error('Error during contract process:', error);
+          alert('Failed to generate or download contract. Check console for details.');
+        } finally {
+          event.target.textContent = originalText;
+          event.target.disabled = false;
+        }
+      });
+    });
+  </script>
 </body>
 </html>
