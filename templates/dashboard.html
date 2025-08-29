@@ -99,42 +99,51 @@
     {% endfor %}
   </div>
 
-  {% raw %}
-  <script>
-    document.querySelectorAll('.btn-smart-contract').forEach(button => {
-      button.addEventListener('click', async (event) => {
-        const leadId = event.target.dataset.leadId;
-        const originalText = event.target.textContent;
-        event.target.disabled = true;
-        event.target.textContent = 'Generating...';
+{% raw %}
+<script>
+  document.querySelectorAll('.btn-smart-contract').forEach(button => {
+    button.addEventListener('click', async (event) => {
+      const leadId = event.target.dataset.leadId;
+      const originalText = event.target.textContent;
+      event.target.disabled = true;
+      event.target.textContent = 'Generating...';
 
-        try {
-          // Step 1: Generate the contract
-          const generateResponse = await fetch(`/generate_contract/${leadId}`);
-          if (!generateResponse.ok) {
-            throw new Error(`Failed to generate contract: ${generateResponse.statusText}`);
-          }
-          const generateData = await generateResponse.json();
-          console.log('Contract generation response:', generateData);
+      try {
+        // Step 1: Generate the contract
+        const generateResponse = await fetch(`/generate_contract/${leadId}`);
+        if (!generateResponse.ok) throw new Error(`Failed to generate contract`);
+        await generateResponse.json();
 
-          // Step 2: Trigger the download
-          const downloadLink = document.createElement('a');
-          downloadLink.href = `/download_contract/${leadId}`;
-          downloadLink.download = `Contract_${leadId}.docx`;
-          document.body.appendChild(downloadLink);
-          downloadLink.click();
-          document.body.removeChild(downloadLink);
+        // Step 2: Trigger the download
+        const downloadLink = document.createElement('a');
+        downloadLink.href = `/download_contract/${leadId}`;
+        downloadLink.download = `Contract_${leadId}.docx`;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
 
-        } catch (error) {
-          console.error('Error during contract process:', error);
-          alert('Failed to generate or download contract. Check console.');
-        } finally {
-          event.target.textContent = originalText;
-          event.target.disabled = false;
-        }
-      });
+        // Step 3: Update status → move lead to Contract Generated
+        const updateResponse = await fetch(`/update_status/${leadId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ new_status: "Contract Generated" })
+        });
+        if (!updateResponse.ok) throw new Error(`Failed to update status`);
+        await updateResponse.json();
+
+        // Reload page to see card move columns
+        setTimeout(() => { window.location.reload(); }, 500);
+
+      } catch (error) {
+        console.error('Error during contract process:', error);
+        alert('Something went wrong. Check console.');
+      } finally {
+        event.target.textContent = originalText;
+        event.target.disabled = false;
+      }
     });
-  </script>
-  {% endraw %}
+  });
+</script>
+{% endraw %}
 </body>
 </html>
