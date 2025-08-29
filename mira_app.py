@@ -180,3 +180,61 @@ async def tally_webhook(payload: dict = Body(...)):
 
     await engine.dispose()
     return {"success": True, "inserted": {"name": name, "email": email, "service": service}}
+    
+    # Manual contract generation endpoint
+@app.get("/generate_contract/{lead_id}")
+async def generate_contract(lead_id: int):
+    from sqlalchemy.ext.asyncio import create_async_engine
+    from sqlalchemy import text
+    import os
+
+    DATABASE_URL = os.getenv("DATABASE_URL")
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
+    elif DATABASE_URL.startswith("postgresql://"):
+        DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
+
+    engine = create_async_engine(DATABASE_URL, echo=False)
+
+    async with engine.connect() as conn:
+        result = await conn.execute(
+            text("SELECT id, name, email, service, status FROM leads WHERE id = :id"),
+            {"id": lead_id}
+        )
+        row = result.fetchone()
+
+    await engine.dispose()
+
+    if not row:
+        return {"error": f"Lead with id {lead_id} not found"}
+
+    # Convert SQLAlchemy row -> dict
+    lead_dict = {
+        "id": row[0],
+        "name": row[1],
+        "email": row[2],
+        "service": row[3],
+        "status": row[4],
+    }
+
+    # Call the contract generator function we defined earlier
+    contract_path = generate_demo_contract(lead_dict)
+
+    return {
+        "success": True,
+        "contract_created": contract_path,
+        "lead": lead_dict
+    }
+    from fastapi.responses import FileResponse
+
+# Endpoint to download contract by lead_id
+@app.get("/download_contract/{lead_id}")
+async def download_contract(lead_id: int):
+    file_path = f"generated_contracts/demo_contract_{lead_id}.docx"
+    if not os.path.exists(file_path):
+        return {"error": f"No contract found for lead {lead_id}"}
+    return FileResponse(
+        path=file_path,
+        filename=f"demo_contract_{lead_id}.docx",
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
