@@ -3,7 +3,7 @@ This is the main backend for Mira — Your AI Real Estate Co-Pilot.
 It receives client intake forms, stores them, and will handle contract generation and agent assignment.
 """
 
-from fastapi import FastAPI, Request, BackgroundTasks
+from fastapi import FastAPI, Request, BackgroundTasks, Body
 import json
 
 app = FastAPI()
@@ -132,9 +132,11 @@ async def dashboard(request: Request):
 
 @app.post("/tally_webhook")
 async def tally_webhook(payload: dict = Body(...)):
+    import os
     from sqlalchemy.ext.asyncio import create_async_engine
     from sqlalchemy import text
-    import os
+
+    print("📩 Incoming Tally Webhook Payload:", payload)  # 👈 shows up in Render logs
 
     DATABASE_URL = os.getenv("DATABASE_URL")
     if DATABASE_URL.startswith("postgres://"):
@@ -144,7 +146,7 @@ async def tally_webhook(payload: dict = Body(...)):
 
     engine = create_async_engine(DATABASE_URL, echo=False)
 
-    # 🔑 Extract fields (update these keys to match your Tally form payload)
+    # Temporary defaults: once we inspect payload, we’ll adjust
     name = payload.get("name", "Unknown")
     email = payload.get("email", "unknown@example.com")
     service = payload.get("service", "General Inquiry")
