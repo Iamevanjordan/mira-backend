@@ -94,21 +94,21 @@ async def dashboard(request: Request):
     await engine.dispose()
 
     # 🎯 Organize leads by status (robust mapping + fallback)
-leads_by_status = {
-    "New": [],
-    "Contract Generated": [],
-    "DocuSign Ready": [],
-    "Completed": [],
-    "Uncategorized": []
-}
+    leads_by_status = {
+        "New": [],
+        "Contract Generated": [],
+        "DocuSign Ready": [],
+        "Completed": [],
+        "Uncategorized": []
+    }
 
-# Define normalized mapping (expand over time as workflow grows)
-status_map = {
-    "new": "New",
-    "contract generated": "Contract Generated",
-    "docusign ready": "DocuSign Ready",
-    "completed": "Completed"
-}
+    # Define normalized mapping (expand as workflow grows)
+    status_map = {
+        "new": "New",
+        "contract generated": "Contract Generated",
+        "docusign ready": "DocuSign Ready",
+        "completed": "Completed"
+    }
 
     for lead in raw_leads:
         lead_dict = {
@@ -120,7 +120,7 @@ status_map = {
         }
 
         # Normalize incoming DB status
-        normalized = lead_dict["status"].strip().lower()
+        normalized = (lead_dict["status"] or "").strip().lower()
         status_key = status_map.get(normalized, "Uncategorized")
 
         # Bucket the lead
