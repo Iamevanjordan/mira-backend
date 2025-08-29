@@ -1,127 +1,163 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Mira Dashboard</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f9fafb;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    .columns {
-      display: flex;
-      gap: 20px;
-    }
-    .column {
-      flex: 1;
-      background: #ffffff;
-      border-radius: 8px;
-      padding: 12px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .column h2 {
-      text-align: center;
-      font-size: 1.2em;
-      margin-bottom: 15px;
-    }
-    .lead-card {
-      background: #f1f5f9;
-      border-radius: 6px;
-      padding: 12px;
-      margin-bottom: 12px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.08);
-    }
-    .lead-card h3 {
-      margin: 0 0 5px 0;
-      font-size: 1.1em;
-    }
-    .lead-card p {
-      margin: 2px 0;
-      font-size: 0.9em;
-      color: #374151;
-    }
-    .btn-smart-contract {
-      display: inline-block;
-      margin-top: 8px;
-      padding: 6px 10px;
-      background: #2563eb; /* Blue for primary action */
-      color: #fff;
-      font-size: 0.85em;
-      font-weight: bold;
-      border: none;
-      border-radius: 4px;
-      text-decoration: none;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .btn-smart-contract:hover:not(:disabled) {
-      background: #1e40af;
-    }
-    .btn-smart-contract:disabled {
-      background: #9ca3af; /* Gray when disabled/loading */
-      cursor: not-allowed;
-    }
-  </style>
-</head>
-<body>
-  <h1>🌀 Mira Dashboard</h1>
-  <div class="columns">
+INFO:     34.82.80.145:0 - "GET / HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [56]
+INFO:     97.146.65.127:0 - "GET /dashboard HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/uvicorn/protocols/http/httptools_impl.py", line 399, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/uvicorn/middleware/proxy_headers.py", line 70, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 187, in __call__
+    raise exc
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 165, in __call__
+    await self.app(scope, receive, _send)
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+    raise exc
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+    await app(scope, receive, sender)
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/routing.py", line 715, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/routing.py", line 735, in app
+    await route.handle(scope, receive, send)
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/routing.py", line 288, in handle
+    await self.app(scope, receive, send)
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/routing.py", line 76, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+    raise exc
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+    await app(scope, receive, sender)
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/routing.py", line 73, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 301, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 212, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/render/project/src/mira_app.py", line 129, in dashboard
+    return templates.TemplateResponse(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        "dashboard.html",
+        ^^^^^^^^^^^^^^^^^
+        {"request": request, "leads": leads_by_status}
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/templating.py", line 209, in TemplateResponse
+    return _TemplateResponse(
+        template,
+    ...<4 lines>...
+        background=background,
+    )
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/templating.py", line 40, in __init__
+    content = template.render(context)
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/jinja2/environment.py", line 1304, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/jinja2/environment.py", line 939, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "templates/dashboard.html", line 74, in top-level template code
     {% for status, leads in grouped_leads.items() %}
-    <div class="column">
-      <h2>{{ status }}</h2>
-      {% for lead in leads %}
-      <div class="lead-card">
-        <h3>{{ lead.name }}</h3>
-        <p>Email: {{ lead.email }}</p>
-        <p>Phone: {{ lead.phone }}</p>
-        <p>Status: {{ lead.status }}</p>
-        <button class="btn-smart-contract" data-lead-id="{{ lead.id }}">📄 Generate & Download Contract</button>
-      </div>
-      {% endfor %}
-    </div>
-    {% endfor %}
-  </div>
-
-  <script>
-    document.querySelectorAll('.btn-smart-contract').forEach(button => {
-      button.addEventListener('click', async (event) => {
-        const leadId = event.target.dataset.leadId;
-        const originalText = event.target.textContent;
-        event.target.disabled = true;
-        event.target.textContent = 'Generating...';
-
-        try {
-          // Step 1: Generate the contract
-          const generateResponse = await fetch(`/generate_contract/${leadId}`);
-          if (!generateResponse.ok) {
-            throw new Error(`Failed to generate contract: ${generateResponse.statusText}`);
-          }
-          const generateData = await generateResponse.json();
-          console.log('Contract generation response:', generateData);
-
-          // Step 2: Trigger the download
-          // Create a temporary anchor element to trigger the download
-          const downloadLink = document.createElement('a');
-          downloadLink.href = `/download_contract/${leadId}`;
-          downloadLink.download = `Contract_${leadId}.docx`; // Suggest a filename
-          document.body.appendChild(downloadLink); // Append to body to make it clickable
-          downloadLink.click(); // Programmatically click the link
-          document.body.removeChild(downloadLink); // Clean up
-
-        } catch (error) {
-          console.error('Error during contract process:', error);
-          alert('Failed to generate or download contract. Check console for details.');
-        } finally {
-          event.target.textContent = originalText;
-          event.target.disabled = false;
-        }
-      });
-    });
-  </script>
-</body>
-</html>
+    ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/jinja2/environment.py", line 487, in getattr
+    return getattr(obj, attribute)
+jinja2.exceptions.UndefinedError: 'grouped_leads' is undefined
+INFO:     97.146.65.127:0 - "GET /dashboard HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/uvicorn/protocols/http/httptools_impl.py", line 399, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/uvicorn/middleware/proxy_headers.py", line 70, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 187, in __call__
+    raise exc
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 165, in __call__
+    await self.app(scope, receive, _send)
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+    raise exc
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+    await app(scope, receive, sender)
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/routing.py", line 715, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/routing.py", line 735, in app
+    await route.handle(scope, receive, send)
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/routing.py", line 288, in handle
+    await self.app(scope, receive, send)
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/routing.py", line 76, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+    raise exc
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+    await app(scope, receive, sender)
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/routing.py", line 73, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 301, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 212, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/render/project/src/mira_app.py", line 129, in dashboard
+    return templates.TemplateResponse(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        "dashboard.html",
+        ^^^^^^^^^^^^^^^^^
+        {"request": request, "leads": leads_by_status}
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/templating.py", line 209, in TemplateResponse
+    return _TemplateResponse(
+        template,
+    ...<4 lines>...
+        background=background,
+    )
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/starlette/templating.py", line 40, in __init__
+    content = template.render(context)
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/jinja2/environment.py", line 1304, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/jinja2/environment.py", line 939, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "templates/dashboard.html", line 74, in top-level template code
+    {% for status, leads in grouped_leads.items() %}
+    ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/render/project/src/.venv/lib/python3.13/site-packages/jinja2/environment.py", line 487, in getattr
+    return getattr(obj, attribute)
+jinja2.exceptions.UndefinedError: 'grouped_leads' is undefined
