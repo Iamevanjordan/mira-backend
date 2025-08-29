@@ -103,18 +103,21 @@
 <script>
   document.querySelectorAll('.btn-smart-contract').forEach(button => {
     button.addEventListener('click', async (event) => {
-      const leadId = event.target.dataset.leadId;
-      const originalText = event.target.textContent;
-      event.target.disabled = true;
-      event.target.textContent = 'Generating...';
+      const btn = event.target;
+      const leadId = btn.dataset.leadId;
+      const card = btn.closest('.lead-card');
+      const originalText = btn.textContent;
+
+      btn.disabled = true;
+      btn.textContent = 'Generating...';
 
       try {
-        // Step 1: Generate the contract
+        // Step 1: Generate contract
         const generateResponse = await fetch(`/generate_contract/${leadId}`);
-        if (!generateResponse.ok) throw new Error(`Failed to generate contract`);
+        if (!generateResponse.ok) throw new Error("Generate failed");
         await generateResponse.json();
 
-        // Step 2: Trigger the download
+        // Step 2: Trigger download
         const downloadLink = document.createElement('a');
         downloadLink.href = `/download_contract/${leadId}`;
         downloadLink.download = `Contract_${leadId}.docx`;
@@ -122,24 +125,36 @@
         downloadLink.click();
         document.body.removeChild(downloadLink);
 
-        // Step 3: Update status → move lead to Contract Generated
+        // Step 3: Update status
         const updateResponse = await fetch(`/update_status/${leadId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ new_status: "Contract Generated" })
         });
-        if (!updateResponse.ok) throw new Error(`Failed to update status`);
-        await updateResponse.json();
+        if (!updateResponse.ok) throw new Error("Update failed");
+        const updateData = await updateResponse.json();
+        console.log("Status update:", updateData);
 
-        // Reload page to see card move columns
-        setTimeout(() => { window.location.reload(); }, 500);
+        // Move card to "Contract Generated" column without reload
+        const targetCol = document.querySelector('.column h2')
+          && Array.from(document.querySelectorAll('.column h2'))
+                 .find(h2 => h2.textContent.includes("Contract Generated"))
+                 .parentElement;
 
-      } catch (error) {
-        console.error('Error during contract process:', error);
-        alert('Something went wrong. Check console.');
+        if (targetCol) {
+          // Remove from current column, append to new column
+          card.remove();
+          targetCol.appendChild(card);
+          // Update displayed status text inside card
+          card.querySelector("p:last-of-type").textContent = "Status: Contract Generated";
+        }
+
+      } catch (err) {
+        console.error("Smart button flow failed:", err);
+        alert("Something went wrong. Check console/logs.");
       } finally {
-        event.target.textContent = originalText;
-        event.target.disabled = false;
+        btn.textContent = originalText;
+        btn.disabled = false;
       }
     });
   });
