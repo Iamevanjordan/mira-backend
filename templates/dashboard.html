@@ -147,6 +147,8 @@
           targetCol.appendChild(card);
           // Update displayed status text inside card
           card.querySelector("p:last-of-type").textContent = "Status: Contract Generated";
+          // 🔥 Remove the generate button
+          btn.remove();
         }
 
       } catch (err) {
