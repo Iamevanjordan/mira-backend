@@ -128,3 +128,36 @@ async def dashboard(request: Request):
         "dashboard.html",
         {"request": request, "leads": leads_by_status}
     )
+    from fastapi import Body
+
+@app.post("/tally_webhook")
+async def tally_webhook(payload: dict = Body(...)):
+    from sqlalchemy.ext.asyncio import create_async_engine
+    from sqlalchemy import text
+    import os
+
+    DATABASE_URL = os.getenv("DATABASE_URL")
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
+    elif DATABASE_URL.startswith("postgresql://"):
+        DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
+
+    engine = create_async_engine(DATABASE_URL, echo=False)
+
+    # 🔑 Extract fields (update these keys to match your Tally form payload)
+    name = payload.get("name", "Unknown")
+    email = payload.get("email", "unknown@example.com")
+    service = payload.get("service", "General Inquiry")
+    status = "New"
+
+    async with engine.begin() as conn:
+        await conn.execute(
+            text("""
+                INSERT INTO leads (name, email, service, status)
+                VALUES (:name, :email, :service, :status)
+            """),
+            {"name": name, "email": email, "service": service, "status": status}
+        )
+
+    await engine.dispose()
+    return {"success": True, "inserted": {"name": name, "email": email, "service": service}}
