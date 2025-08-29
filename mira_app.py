@@ -190,3 +190,19 @@ async def download_contract(lead_id: int):
         filename=f"demo_contract_{lead_id}.docx",
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     )
+    # Endpoint to update lead status
+from fastapi import Body
+
+@app.post("/update_status/{lead_id}")
+async def update_status(lead_id: int, new_status: str = Body(..., embed=True)):
+    DATABASE_URL = get_database_url()
+    engine = create_async_engine(DATABASE_URL, echo=False)
+
+    async with engine.begin() as conn:
+        await conn.execute(
+            text("UPDATE leads SET status = :status WHERE id = :id"),
+            {"status": new_status, "id": lead_id}
+        )
+
+    await engine.dispose()
+    return {"success": True, "updated_id": lead_id, "new_status": new_status}
